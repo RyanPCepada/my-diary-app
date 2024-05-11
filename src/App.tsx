@@ -10,10 +10,12 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home, book, personCircleOutline } from 'ionicons/icons';
+import { home, personCircleOutline } from 'ionicons/icons';
+
 import Home from './pages/Home';
-import Diary from './pages/Diary';
 import Profile from './pages/Profile';
+import MyDiary from './pages/MyDiary/MyDiary';
+import NewDiary from './pages/NewDiary/NewDiary';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -52,31 +54,34 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
+          
+          <Route exact path="/newdiary">
+            <NewDiary />
+          </Route>
+          <Route exact path="/mydiary">
+            <MyDiary />
+          </Route>
+
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
           <Route exact path="/home">
             <Home />
           </Route>
-          <Route exact path="/diary">
-            <Diary />
-          </Route>
           <Route path="/profile">
             <Profile />
           </Route>
-          <Route exact path="/">
-            <Redirect to="/home" />
-          </Route>
+         
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
           <IonTabButton tab="home" href="/home">
             <IonIcon aria-hidden="true" icon={home} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="diary" href="/diary">
+          {/* <IonTabButton tab="diary" href="/diary">
             <IonIcon aria-hidden="true" icon={book} />
             <IonLabel>Diary</IonLabel>
-          </IonTabButton>
+          </IonTabButton> */}
           <IonTabButton tab="profile" href="/profile">
             <IonIcon aria-hidden="true" icon={personCircleOutline} />
             <IonLabel>Profile</IonLabel>
