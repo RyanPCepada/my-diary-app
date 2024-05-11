@@ -19,23 +19,23 @@ import {
   IonList,
   IonPage,
   IonRow,
-  IonTextarea,
   IonTitle,
   IonToolbar,
   IonItemDivider,
+  IonTextarea,
   useIonToast
 } from '@ionic/react';
 //Ionicons
-import { trashOutline, pencilOutline, checkmarkOutline } from 'ionicons/icons';
+import { trashOutline, pencilOutline } from 'ionicons/icons';
 
 import './NewDiary.css';
 
 // Firebase
-import { collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot,updateDoc,doc, deleteDoc} from 'firebase/firestore';
 import { db } from './Firebase';
 
 const NewDiary: React.FC = () => {
-  const [diary, setDiaries] = useState<{ id: string; title: string; description: string; dateAdded: string; completed: boolean }[]>([]);
+  const [diaries, readDiaries] = useState<{ id: string; title: string; description: string;dateAdded: string; }[]>([]);
   const [newTitle, setNewTitle] = useState<string>('');
   const [newDescription, setNewDescription] = useState<string>('');
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -53,15 +53,15 @@ const NewDiary: React.FC = () => {
   };
 
   // Toast
-  const addDiariesToast = (position: 'middle') => {
+  const addDiaryToast = (position: 'middle') => {
     present({
-      message: 'Added new Diaries',
+      message: 'Added new Diary',
       duration: 1500,
       position: position,
     });
   };
 
-  const editDiariesToast = (position: 'middle') => {
+  const editDiaryToast = (position: 'middle') => {
     present({
       message: 'Changes Saved',
       duration: 1500,
@@ -69,29 +69,28 @@ const NewDiary: React.FC = () => {
     });
   };
 
-  const deleteDiariesToast = (position: 'middle') => {
+  const deleteDiaryToast = (position: 'middle') => {
     present({
-      message: 'Diaries deleted',
+      message: 'Diary deleted',
       duration: 1500,
       position: position,
     });
   };
 
-  //Create Diaries
-  const addDiaries = async () => {
+  //Create Diary
+  const addDiary = async () => {
     if (newTitle.trim() !== '') {
       if (editIndex !== null) {
         // Update existing diary (not implemented in this code snippet)
       } else {
-        const currentDate = new Date().toISOString();
-        addDiariesToast('middle');
+        const currentDate = new Date().toISOString(); 
+        addDiaryToast('middle');
         await addDoc(collection(db, 'diary'), {
           title: newTitle,
           description: newDescription,
-          dateAdded: currentDate,
-          completed: false
+          dateAdded: currentDate
         });
-
+        
       }
       clearInput();
     }
@@ -100,76 +99,61 @@ const NewDiary: React.FC = () => {
   //Read Firebase Data
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'diary'), (snapshot) => {
-      setDiaries(snapshot.docs.map(doc => ({
+      readDiaries(snapshot.docs.map(doc => ({
         id: doc.id, // Include the id property
         description: doc.data().description,
         title: doc.data().title,
-        dateAdded: doc.data().dateAdded,
-        completed: doc.data().completed
+        dateAdded: doc.data().dateAdded
       })));
     });
     return () => unsubscribe();
   }, []);
 
-  // Edit Handler
-  const editDiaries = (index: number) => {
-    setEditIndex(index);
-    const editedDiaries = diary[index];
-    setNewTitle(editedDiaries.title);
-    setNewDescription(editedDiaries.description);
-  };
+// Edit Handler
+const editDiary = (index: number) => {
+  setEditIndex(index);
+  const editedDiary = diaries[index];
+  setNewTitle(editedDiary.title);
+  setNewDescription(editedDiary.description);
+};
 
-  // Update Firebase Data
-  const updateDiaries = async () => {
-    if (editIndex !== null) {
-      editDiariesToast('middle');
-      const diaryToUpdate = diary[editIndex];
-      await updateDoc(doc(db, 'diary', diaryToUpdate.id), {
-        title: newTitle,
-        description: newDescription,
-      });
-      // Clear the input fields and reset editIndex
-      clearInput();
-      setEditIndex(null);
-    }
-  };
-
-  // Cancel Edit function
-  const cancelEdit = () => {
-    clearInput(); // Clear input fields
-    setEditIndex(null); // Reset editIndex
-  };
-
-  // Delete Firebase Data
-  const deleteDiaries = async (index: number) => {
-    deleteDiariesToast('middle');
-    const diaryToDelete = diary[index];
-    // Delete diary from Firestore
-    await deleteDoc(doc(db, 'diary', diaryToDelete.id));
-  };
-
-  // Toggle Completion
-  const toggleCompletion = async (index: number) => {
-    const updatedDiaries = [...diary];
-    updatedDiaries[index].completed = !updatedDiaries[index].completed;
-    setDiaries(updatedDiaries);
-
-    // Update completion status in Firestore
-    await updateDoc(doc(db, 'diary', diary[index].id), {
-      completed: updatedDiaries[index].completed
+// Update Firebase Data
+const updateDiary = async () => {
+  if (editIndex !== null) {
+    editDiaryToast('middle');
+    const DiaryToUpdate = diaries[editIndex];
+    await updateDoc(doc(db, 'diary', DiaryToUpdate.id), {
+      title: newTitle,
+      description: newDescription,
     });
-  };
+    // Clear the input fields and reset editIndex
+    clearInput();
+    setEditIndex(null);
+  }
+};
+
+//Cancel Edit function
+const cancelEdit = () => {
+  clearInput(); // Clear input fields
+  setEditIndex(null); // Reset editIndex
+};
+
+// Delete Firebase Data
+const deleteDiary = async (index: number) => {
+  deleteDiaryToast('middle');
+  const DiaryToDelete = diaries[index];
+  // Delete diary from Firestore
+  await deleteDoc(doc(db, 'diary', DiaryToDelete.id));
+};
 
   return (
     <IonPage className="home-page">
-      <img alt="Profile" id="profile_pic" src="https://raw.githubusercontent.com/RyanPCepada/ion-t-cepada/main/src/assets/img/GALAXY_GIF.gif"
-        style={{width:'100%', position: 'absolute'}}/>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
-          <IonTitle>My Diary</IonTitle>
+          <IonTitle>Diaries</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -178,11 +162,11 @@ const NewDiary: React.FC = () => {
             <IonCardTitle>
               <IonInput
                 placeholder="Type your diary here"
-                label="Add a new diary..."
+                label="Add a diary..."
                 id="custom-input"
                 labelPlacement="floating"
                 counter={true}
-                maxlength={1000}
+                maxlength={50}
                 counterFormatter={(inputLength, maxLength) => `${maxLength - inputLength} / ${maxLength} characters remaining`}
                 value={newTitle}
                 onIonInput={(e) => setNewTitle(e.detail.value!)}
@@ -190,8 +174,8 @@ const NewDiary: React.FC = () => {
               ></IonInput>
             </IonCardTitle>
             <IonCardSubtitle>
-              <IonTextarea
-                placeholder="Type task description here"
+              <IonTextarea 
+                placeholder="Type diary description here"
                 label="Description"
                 id="custom-input"
                 labelPlacement="floating"
@@ -207,20 +191,21 @@ const NewDiary: React.FC = () => {
           <IonCardContent>
             <IonRow>
               <IonCol>
-                <IonButton expand="block" onClick={editIndex !== null ? updateDiaries : addDiaries}>
+                <IonButton expand="block" onClick={editIndex !== null ? updateDiary : addDiary}>
                   {editIndex !== null ? 'Update' : 'Add'}
                 </IonButton>
               </IonCol>
-              <IonCol>
+              <IonCol> 
                 <IonButton expand="block" fill="clear" onClick={editIndex !== null ? cancelEdit : clearInput}>
                   {editIndex !== null ? 'Cancel' : 'Clear'}
                 </IonButton>
               </IonCol>
-            </IonRow>
+            </IonRow>      
           </IonCardContent>
         </IonCard>
-        {/*Diaries list output*/}
+        {/*Todo list output*/}
         <br></br>
+        
       </IonContent>
     </IonPage>
   );

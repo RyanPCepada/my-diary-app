@@ -18,18 +18,19 @@ import {
   IonPage,
   IonRow,
   IonTextarea,
+  IonTitle,
   IonToolbar,
   IonItemDivider,
   useIonToast
 } from '@ionic/react';
 //Ionicons
-import { trashOutline, pencilOutline, checkmarkOutline } from 'ionicons/icons';
+import { trashOutline, pencilOutline } from 'ionicons/icons';
 
 import './MyDiary.css';
 
 // Firebase
 import { collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../NewDiary/Firebase';
+import { db } from './Firebase';
 
 const MyDiary: React.FC = () => {
   const [diary, setDiaries] = useState<{ id: string; diary: string; description: string; dateAdded: string; completed: boolean }[]>([]);
@@ -164,7 +165,7 @@ const MyDiary: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" />
           </IonButtons>
-          <IonDiary>My Diaries</IonDiary>
+          <IonTitle>My Diaries</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -176,15 +177,14 @@ const MyDiary: React.FC = () => {
             .slice() // Create a shallow copy of the diary array to avoid mutating the original array
             .sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()) // Sort the array by dateAdded
             .map((diary, index) => (
-              <IonItem key={index}>
-                <IonLabel onClick={() => toggleCompletion(index)} style={{ textDecoration: diary.completed ? 'line-through' : 'none' }}>
-                  <h2>{diary.diary}</h2>
-                  <p>{diary.description}</p>
-                  <p>{new Date(diary.dateAdded).toLocaleString()}</p>
-                </IonLabel>
-                <IonButton fill="clear" onClick={() => editDiary(index)}>
-                  
-                  <IonIcon icon={pencilOutline} />
+            <IonItem key={index}>
+              <IonLabel onClick={() => toggleCompletion(index)} style={{ textDecoration: diary.completed ? 'line-through' : 'none' }}>
+                <h2>{diary.diary}</h2>
+                <p>{diary.description}</p>
+                <p>{new Date(diary.dateAdded).toLocaleString()}</p>
+              </IonLabel>
+              <IonButton fill="clear" onClick={() => editDiary(index)}>
+                <IonIcon icon={pencilOutline} />
                 Edit
               </IonButton>
               <IonButton fill="clear" onClick={() => deleteDiary(index)}>
